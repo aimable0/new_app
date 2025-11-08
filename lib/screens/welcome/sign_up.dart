@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/models/app_user.dart';
 import 'package:new_app/services/auth_service.dart';
+import 'package:new_app/services/firestore_service.dart';
 import 'package:new_app/shared/styled_button.dart';
 import 'package:new_app/shared/styled_text.dart';
 
@@ -15,6 +17,8 @@ class _SignUpFormState extends State<SignUpForm> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordController2 = TextEditingController();
+  final TextEditingController _displayName = TextEditingController();
 
   String? _errorFeedback;
 
@@ -31,6 +35,21 @@ class _SignUpFormState extends State<SignUpForm> {
             const Center(child: StyledBodyText('Sign up for a new account.')),
             const SizedBox(height: 16.0),
 
+            // username
+            TextFormField(
+              controller: _displayName,
+              decoration: const InputDecoration(
+                labelText: 'What should we call you?',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a username';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16.0),
+
             // email address
             TextFormField(
               controller: _emailController,
@@ -45,7 +64,6 @@ class _SignUpFormState extends State<SignUpForm> {
             ),
             const SizedBox(height: 16.0),
 
-            // password
             TextFormField(
               controller: _passwordController,
               obscureText: true,
@@ -60,14 +78,31 @@ class _SignUpFormState extends State<SignUpForm> {
                 return null;
               },
             ),
+
+            const SizedBox(height: 16.0),
+            TextFormField(
+              controller: _passwordController2,
+              obscureText: true,
+              decoration: const InputDecoration(labelText: 'Re-Enter Password'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please make a password';
+                }
+                if (value.length < 8) {
+                  return 'Password must be at least 8 chars long';
+                }
+                if (_passwordController.text.trim() !=
+                    _passwordController2.text.trim()) {
+                  return 'Password do not match';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 16.0),
 
             // error feedback
             if (_errorFeedback != null)
-              Text(
-                _errorFeedback!,
-                style: const TextStyle(color: Colors.red),
-              ),
+              Text(_errorFeedback!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 16.0),
 
             // submit button
@@ -88,6 +123,17 @@ class _SignUpFormState extends State<SignUpForm> {
                     setState(() {
                       _errorFeedback = 'Could not sign up with those details.';
                     });
+                  } else {
+                    // save user to db
+                    FirestoreService.addUserProfile(
+                      AppUser(
+                        uid: user.uid,
+                        email: user.email!,
+                        displayName: _displayName.text,
+                        notificationReminders: true,
+                        emailUpdates: false,
+                      ),
+                    );
                   }
                 }
               },

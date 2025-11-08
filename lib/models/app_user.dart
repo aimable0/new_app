@@ -19,8 +19,6 @@ class AppUser {
   final bool notificationReminders;
   final bool emailUpdates;
 
-  // --- Firestore Conversion
-  /// Converts an [AppUser] object into a [Map<String, dynamic>]
   /// for writing to Firestore.
   Map<String, dynamic> toFirestore() {
     return {
@@ -47,7 +45,7 @@ class AppUser {
 
     // Create the AppUser instance
     return AppUser(
-      uid: snapshot.id, 
+      uid: snapshot.id,
       email: data?['email'] ?? '',
       displayName: data?['displayName'] ?? '',
       notificationReminders: settings['notificationReminders'] ?? true,
