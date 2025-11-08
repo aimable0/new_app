@@ -1,5 +1,12 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:new_app/services/auth_service.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:new_app/services/storage_service.dart';
+import 'package:new_app/services/firestore_service.dart';
+import 'package:new_app/models/book/book.dart';
+import 'package:new_app/models/book/book_enums.dart';
 import 'package:new_app/shared/bottom_bar.dart';
 import 'package:new_app/shared/styled_button.dart';
 import 'package:new_app/shared/styled_text.dart';
@@ -19,15 +26,49 @@ class _PostBookState extends State<PostBook> {
   final TextEditingController _author = TextEditingController();
   final TextEditingController _swapFor = TextEditingController();
 
+  // Image picker
+  File? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+  bool _loading = false;
+
+  Future<void> pickImage() async {
+    final XFile? picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        _imageFile = File(picked.path);
+      });
+    }
+  }
+
+  // Error & condition
   String? _errorFeedback;
-  String? selectedCondition; // <-- selected condition
-  final List<String> conditions = ['Used', 'New', 'Like-New', 'Good'];
+  BookCondition? selectedCondition;
+
+  final List<BookCondition> conditions = [
+    BookCondition.New,
+    BookCondition.LikeNew,
+    BookCondition.Good,
+    BookCondition.Used,
+  ];
+
+  String _bookConditionToLabel(BookCondition condition) {
+    switch (condition) {
+      case BookCondition.New:
+        return "New";
+      case BookCondition.LikeNew:
+        return "Like-New";
+      case BookCondition.Good:
+        return "Good";
+      case BookCondition.Used:
+        return "Used";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: StyledAppBarText('Post Book')),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(32.0),
         child: Form(
           key: _formKey,
@@ -40,12 +81,9 @@ class _PostBookState extends State<PostBook> {
                   labelText: 'Book Title',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter book title';
-                  }
-                  return null;
-                },
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter book title'
+                    : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -54,38 +92,29 @@ class _PostBookState extends State<PostBook> {
                   labelText: 'Author',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter book author';
-                  }
-                  return null;
-                },
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter book author'
+                    : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _swapFor,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Swap For',
                   border: OutlineInputBorder(),
-                  focusColor: Colors.blue[500],
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a desired swap';
-                  }
-                  return null;
-                },
+                validator: (value) => (value == null || value.isEmpty)
+                    ? 'Please enter a desired swap'
+                    : null,
               ),
               const SizedBox(height: 16.0),
-              StyledBodyText('Condition: '),
+              StyledBodyText('Condition:'),
               const SizedBox(height: 8.0),
-
-              // --- Condition selector ---
               Wrap(
                 spacing: 10,
                 children: conditions.map((condition) {
                   return ChoiceChip(
-                    label: Text(condition),
+                    label: Text(_bookConditionToLabel(condition)),
                     selected: selectedCondition == condition,
                     onSelected: (bool selected) {
                       setState(() {
@@ -96,30 +125,87 @@ class _PostBookState extends State<PostBook> {
                 }).toList(),
               ),
               const SizedBox(height: 16.0),
+              // Image picker
+              GestureDetector(
+                onTap: pickImage,
+                child: _imageFile == null
+                    ? Container(
+                        height: 160,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey[300],
+                        ),
+                        child: const Center(
+                          child: Text("Tap to select book image"),
+                        ),
+                      )
+                    : Image.file(_imageFile!, height: 160, fit: BoxFit.cover),
+              ),
+              const SizedBox(height: 16.0),
 
-              // error feedback
+              // Error feedback
               if (_errorFeedback != null)
                 Text(
                   _errorFeedback!,
                   style: const TextStyle(color: Colors.red),
                 ),
               const SizedBox(height: 16.0),
-
-              // submit button
+              // Submit button
               StyledButton(
                 onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    if (selectedCondition == null) {
-                      setState(() {
-                        _errorFeedback = 'Please select a condition';
-                      });
-                      return;
-                    }
+                  if (!_formKey.currentState!.validate()) return;
+
+                  if (selectedCondition == null) {
                     setState(() {
-                      _errorFeedback = null;
+                      _errorFeedback = 'Please select a condition';
                     });
-                    // save book here
-                    // you can use `selectedCondition` as the book condition
+                    return;
+                  }
+                  if (_imageFile == null) {
+                    setState(() {
+                      _errorFeedback = 'Please pick a book image';
+                    });
+                    return;
+                  }
+
+                  setState(() {
+                    _errorFeedback = null;
+                    _loading = true;
+                  });
+
+                  try {
+                    final user = FirebaseAuth.instance.currentUser!;
+                    final userId = user.uid;
+
+                    final imageUrl = await StorageService.uploadBookCover(
+                      _imageFile!,
+                      userId,
+                    );
+
+                    final book = Book(
+                      id: "", // Firestore auto-generates
+                      title: _title.text.trim(),
+                      author: _author.text.trim(),
+                      swapFor: _swapFor.text.trim(),
+                      condition: selectedCondition!,
+                      status: BookStatus.available,
+                      coverImageUrl: imageUrl,
+                      ownerId: userId,
+                      ownerName: user.displayName,
+                      postedAt: Timestamp.now(),
+                    );
+
+                    await FirestoreService.postBook(book);
+
+                    if (mounted) Navigator.pop(context);
+                  } catch (e) {
+                    setState(() {
+                      _errorFeedback = 'Failed to post. Try again.';
+                    });
+                    print('Error: $e');
+                  } finally {
+                    if (mounted) setState(() => _loading = false);
                   }
                 },
                 child: const StyledButtonText('Post book'),

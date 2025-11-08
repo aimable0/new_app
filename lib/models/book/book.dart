@@ -11,6 +11,7 @@ class Book {
     required this.title,
     required this.author,
     required this.condition,
+    required this.swapFor,
     required this.ownerId, // The UID of the user who posted it
     required this.status,
     required this.postedAt,
@@ -21,6 +22,7 @@ class Book {
   final String id;
   final String title;
   final String author;
+  final String swapFor;
   final String? coverImageUrl;
   final String ownerId;
   final String? ownerName; // Denormalized name for easy display
@@ -39,6 +41,7 @@ class Book {
       "title": title,
       "author": author,
       "coverImageUrl": coverImageUrl,
+      "swapFor": swapFor,
       "ownerId": ownerId,
       "ownerName": ownerName,
       "postedAt": postedAt,
@@ -73,6 +76,7 @@ class Book {
       id: snapshot.id, // The document ID
       title: data?['title'] ?? '',
       author: data?['author'] ?? '',
+      swapFor: data?['swapFor'] ?? '',
       coverImageUrl: data?['coverImageUrl'],
       ownerId: data?['ownerId'] ?? '',
       ownerName: data?['ownerName'],
