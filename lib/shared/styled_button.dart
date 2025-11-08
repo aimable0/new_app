@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:new_app/theme.dart';
 
 class StyledButton extends StatelessWidget {
   const StyledButton({super.key, required this.onPressed, required this.child});
@@ -32,8 +33,8 @@ class StyledButtonText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(text, style: GoogleFonts.poppins(
         textStyle: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
+          color: AppColors.primaryColor,
+          fontSize: 18,
           fontWeight: FontWeight.bold,
           letterSpacing: 0.8,
         ),

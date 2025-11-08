@@ -4,8 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:new_app/providers/auth_provider.dart';
 import 'package:new_app/screens/profile/browse.dart';
+import 'package:new_app/theme.dart';
 import 'firebase_options.dart';
-
 
 import 'screens/welcome/welcome.dart';
 import 'screens/welcome/verify.dart';
@@ -30,10 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BookSwap App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: primaryTheme,
       home: Consumer(
         builder: (context, ref, child) {
           final authState = ref.watch(authProvider);
@@ -46,8 +43,7 @@ class MyApp extends StatelessWidget {
 
               return Browse();
             },
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, _) =>
                 Center(child: Text('Error loading auth status: $err')),
           );

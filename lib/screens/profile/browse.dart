@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:new_app/shared/bottom_bar.dart';
 import 'package:new_app/shared/styled_text.dart';
+import 'package:new_app/theme.dart';
 
 class Browse extends StatefulWidget {
   const Browse({super.key});

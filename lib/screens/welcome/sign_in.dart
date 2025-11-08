@@ -61,10 +61,7 @@ class _SignInFormState extends State<SignInForm> {
 
             // error feedback
             if (_errorFeedback != null)
-              Text(
-                _errorFeedback!,
-                style: const TextStyle(color: Colors.red),
-              ),
+              Text(_errorFeedback!, style: const TextStyle(color: Colors.red)),
             const SizedBox(height: 16.0),
 
             // submit button

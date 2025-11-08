@@ -23,7 +23,7 @@ class StyledHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text, style: GoogleFonts.poppins(
-        textStyle: TextStyle(color: Colors.blue[500], fontSize: 32),
+        textStyle: TextStyle(color: Colors.blue[500], fontSize: 28),
       )
     );
   }
@@ -37,7 +37,7 @@ class StyledAppBarText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text, style: GoogleFonts.poppins(
-        textStyle: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        textStyle: TextStyle(color: Colors.blue[500], fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1),
       )
     );
   }
