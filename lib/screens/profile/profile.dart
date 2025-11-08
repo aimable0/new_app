@@ -14,7 +14,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const StyledAppBarText('Your Profile'),
+        title: const StyledAppBarText('Browse Listings'),
         backgroundColor: Colors.blue[500],
         centerTitle: true,
       ),
@@ -41,6 +41,8 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
+
+      
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:new_app/providers/auth_provider.dart';
+import 'package:new_app/screens/profile/browse.dart';
 import 'firebase_options.dart';
 
 
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
 
               if (!user.emailVerified) return const VerifyScreen();
 
-              return ProfileScreen(user: user);
+              return Browse();
             },
             loading: () =>
                 const Center(child: CircularProgressIndicator()),
