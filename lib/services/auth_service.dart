@@ -9,7 +9,9 @@ class AuthService {
   static Future<User?> signUp(String email, String password) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
 
       final user = cred.user;
 
@@ -41,17 +43,50 @@ class AuthService {
   /// Sign in
   static Future<User?> signIn(String email, String password) async {
     try {
+      // Debug: log the email used for sign-in attempts
+      // ignore: avoid_print
+      print('AuthService.signIn() - attempting sign in for email=$email');
+
       final cred = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
+
+      // ignore: avoid_print
+      print(
+        'AuthService.signIn() - signInWithEmailAndPassword succeeded uid=${cred.user?.uid}',
+      );
+
       return cred.user;
-    } catch (e) {
+    } catch (e, st) {
+      // ignore: avoid_print
       print('SignIn error: $e');
+      // ignore: avoid_print
+      print('SignIn stack: $st');
     }
     return null;
   }
 
   /// Sign out
   static Future<void> signOut() async {
-    await _auth.signOut();
+    try {
+      // Debug: print current user before sign out
+      final before = _auth.currentUser;
+      // ignore: avoid_print
+      print('AuthService.signOut() - before signOut, user=${before?.uid}');
+
+      await _auth.signOut();
+
+      // small delay to allow internal state to update across platforms
+      await Future.delayed(const Duration(milliseconds: 200));
+
+      final after = _auth.currentUser;
+      // ignore: avoid_print
+      print('AuthService.signOut() - after signOut, user=${after?.uid}');
+    } catch (e, st) {
+      // ignore: avoid_print
+      print('AuthService.signOut() error: $e\n$st');
+      rethrow;
+    }
   }
 }

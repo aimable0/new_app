@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:new_app/services/auth_service.dart';
+import 'package:new_app/screens/profile/browse.dart';
+import 'package:new_app/screens/welcome/verify.dart';
 import 'package:new_app/shared/styled_button.dart';
 import 'package:new_app/shared/styled_text.dart';
 
@@ -91,6 +93,20 @@ class _SignInFormState extends State<SignInForm> {
                     setState(() {
                       _errorFeedback = 'Incorrect login credentials.';
                     });
+                  } else {
+                    // On successful sign in navigate to appropriate screen.
+                    if (!mounted) return;
+                    if (!user.emailVerified) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const VerifyScreen()),
+                        (route) => false,
+                      );
+                    } else {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const Browse()),
+                        (route) => false,
+                      );
+                    }
                   }
                 }
               },

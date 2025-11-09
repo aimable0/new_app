@@ -140,12 +140,22 @@ class _SignUpFormState extends State<SignUpForm> {
                       _errorFeedback = 'Could not sign up with those details.';
                     });
                   } else {
-                    // save user to db
-                    FirestoreService.addUserProfile(
+                    // Ensure the Firebase User profile has the displayName set
+                    try {
+                      await user.updateDisplayName(_displayName.text.trim());
+                      // Reload user to ensure local User object is updated
+                      await user.reload();
+                    } catch (e) {
+                      // ignore: avoid_print
+                      print('Could not update Firebase user displayName: $e');
+                    }
+
+                    // save user to db and await it so Firestore has the value when other screens read it
+                    await FirestoreService.addUserProfile(
                       AppUser(
                         uid: user.uid,
                         email: user.email!,
-                        displayName: _displayName.text,
+                        displayName: _displayName.text.trim(),
                         notificationReminders: true,
                         emailUpdates: false,
                       ),

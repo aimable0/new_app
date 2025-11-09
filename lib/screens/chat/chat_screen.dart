@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:new_app/shared/bottom_bar.dart';
+import 'package:new_app/shared/styled_text.dart';
 // (Keep all your other imports)
 
 class ChatsScreen extends StatelessWidget {
@@ -18,10 +19,7 @@ class ChatsScreen extends StatelessWidget {
 
     return Scaffold(
       // AppBar will now use your main theme
-      appBar: AppBar(
-        title: const Text('Chat'),
-        // No hardcoded color
-      ),
+      appBar: AppBar(title: const StyledAppBarText('Chat'), centerTitle: true),
       // Scaffold background will use your main theme
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         // We now query for all swaps where the current user
@@ -34,31 +32,46 @@ class ChatsScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
-                child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.primary, // Use theme color
-            ));
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary, // Use theme color
+              ),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.chat_bubble_outline,
+            return Padding(
+              // Make room for system and keyboard insets so the column can't overflow
+              padding: EdgeInsets.only(
+                bottom:
+                    MediaQuery.of(context).viewInsets.bottom +
+                    MediaQuery.of(context).padding.bottom +
+                    16,
+              ),
+              child: Center(
+                child: Column(
+                  // Use min so Column doesn't try to fill vertical space and overflow
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.chat_bubble_outline,
                       size: 64,
-                      color: Colors.grey.shade400), // Lighter grey
-                  SizedBox(height: 16),
-                  Text(
-                    'No chats yet',
-                    style: TextStyle(
+                      color: Colors.grey.shade400,
+                    ), // Lighter grey
+                    const SizedBox(height: 16),
+                    Text(
+                      'No chats yet',
+                      style: TextStyle(
                         fontSize: 18,
-                        color: Colors.grey.shade600), // Darker grey
-                  ),
-                  Text(
-                    'Request a swap to start a chat!', // Updated text
-                    style: TextStyle(color: Colors.grey.shade500),
-                  ),
-                ],
+                        color: Colors.grey.shade600,
+                      ), // Darker grey
+                    ),
+                    Text(
+                      'Request a swap to start a chat!', // Updated text
+                      style: TextStyle(color: Colors.grey.shade500),
+                    ),
+                  ],
+                ),
               ),
             );
           }
@@ -93,19 +106,19 @@ class ChatsScreen extends StatelessWidget {
                   return Card(
                     // This color should match your "My Listings" cards
                     // e.g., Color(0xFFF0F4FF) or from theme
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surfaceVariant
-                        .withOpacity(0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceVariant.withOpacity(0.5),
                     elevation: 0, // No shadow, like your new UI
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     child: ListTile(
                       leading: CircleAvatar(
                         radius: 24,
-                        // Use theme's primary color (blue)
-                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        // Use same blue as profile avatar for consistency
+                        backgroundColor: Colors.blue[400],
                         backgroundImage: preview.photoUrl != null
                             ? NetworkImage(preview.photoUrl!)
                             : null,
@@ -114,10 +127,8 @@ class ChatsScreen extends StatelessWidget {
                                 preview.name.isNotEmpty
                                     ? preview.name[0].toUpperCase()
                                     : '?',
-                                style: TextStyle(
-                                  // Use theme's "onPrimary" color (white)
-                                  color:
-                                      Theme.of(context).colorScheme.onPrimary,
+                                style: const TextStyle(
+                                  color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               )
@@ -135,10 +146,9 @@ class ChatsScreen extends StatelessWidget {
                         preview.lastMessage,
                         // Use theme's secondary text color
                         style: TextStyle(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                            fontSize: 13),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -153,37 +163,21 @@ class ChatsScreen extends StatelessWidget {
                               color: swapStatus == 'pending'
                                   ? Colors.orangeAccent
                                   : swapStatus == 'accepted'
-                                      ? Colors.greenAccent
-                                      : Colors.grey,
+                                  ? Colors.greenAccent
+                                  : Colors.grey,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 4),
-                          if (preview.unreadCount > 0)
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(
-                                color: Colors.red, // Unread count is still red
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                '${preview.unreadCount}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          const SizedBox(height: 4),
                           Text(
                             preview.timeAgo,
                             style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                                fontSize: 11),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
@@ -203,8 +197,9 @@ class ChatsScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar:
-          BottomBar(currentIndex: 2), // This path might be wrong
+      bottomNavigationBar: BottomBar(
+        currentIndex: 2,
+      ), // This path might be wrong
     );
   }
 
@@ -256,16 +251,7 @@ class ChatsScreen extends StatelessWidget {
         lastTime = msgData['time'] as Timestamp?;
       }
 
-      int unreadCount = 0;
-      if (lastTime != null) {
-        final unreadSnap = await FirebaseFirestore.instance
-            .collection('swaps')
-            .doc(swapId)
-            .collection('messages')
-            .where('sender', isNotEqualTo: currentUserId)
-            .get();
-        unreadCount = unreadSnap.docs.length;
-      }
+      // removed unread count calculation to avoid notification UI
 
       String timeAgo = 'Just now';
       if (lastTime != null) {
@@ -285,16 +271,10 @@ class ChatsScreen extends StatelessWidget {
         name: name,
         photoUrl: photoUrl,
         lastMessage: lastMessage,
-        unreadCount: unreadCount,
         timeAgo: timeAgo,
       );
     } catch (e) {
-      return _ChatPreviewData(
-        name: 'User',
-        lastMessage: 'Error',
-        unreadCount: 0,
-        timeAgo: '',
-      );
+      return _ChatPreviewData(name: 'User', lastMessage: 'Error', timeAgo: '');
     }
   }
 }
@@ -303,14 +283,12 @@ class _ChatPreviewData {
   final String name;
   final String? photoUrl;
   final String lastMessage;
-  final int unreadCount;
   final String timeAgo;
 
   _ChatPreviewData({
     required this.name,
     this.photoUrl,
     required this.lastMessage,
-    required this.unreadCount,
     required this.timeAgo,
   });
 }
@@ -321,15 +299,16 @@ class _ChatTileSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      // Use theme color
+      
       color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.symmetric(vertical: 6),
       child: ListTile(
-        // Use theme color
+
         leading: CircleAvatar(
-            backgroundColor: Theme.of(context).colorScheme.primary),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+        ),
         title: Container(
           height: 10,
           color: Colors.grey.shade300,
@@ -383,10 +362,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         .doc(widget.swapId)
         .collection('messages')
         .add({
-      'text': text,
-      'sender': _currentUser.uid,
-      'time': FieldValue.serverTimestamp(),
-    });
+          'text': text,
+          'sender': _currentUser.uid,
+          'time': FieldValue.serverTimestamp(),
+        });
 
     _msgCtrl.clear();
     _scrollToBottom();
@@ -406,20 +385,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget build(BuildContext context) {
     // Get theme colors
     final Color primaryColor = Theme.of(context).colorScheme.primary;
-    final Color onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
-    final Color surfaceVariantColor =
-        Theme.of(context).colorScheme.surfaceVariant;
+    final Color surfaceVariantColor = Theme.of(
+      context,
+    ).colorScheme.surfaceVariant;
     final Color onSurfaceColor = Theme.of(context).colorScheme.onSurface;
-    final Color onSurfaceVariantColor =
-        Theme.of(context).colorScheme.onSurfaceVariant;
+    final Color onSurfaceVariantColor = Theme.of(
+      context,
+    ).colorScheme.onSurfaceVariant;
 
     return Scaffold(
       // Use theme colors
-      appBar: AppBar(
-        title: const Text('Chat'),
-        backgroundColor: primaryColor, // Blue
-        foregroundColor: onPrimaryColor, // White
-      ),
+      appBar: AppBar(title: const StyledAppBarText('Chat'), centerTitle: true),
       body: Column(
         children: [
           Expanded(
@@ -433,16 +409,17 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                      child: CircularProgressIndicator(color: primaryColor));
+                    child: CircularProgressIndicator(color: primaryColor),
+                  );
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(
-                      child: Text('No messages yet. Say hi!'));
+                  return const Center(child: Text('No messages yet. Say hi!'));
                 }
 
                 final messages = snapshot.data!.docs;
-                WidgetsBinding.instance
-                    .addPostFrameCallback((_) => _scrollToBottom());
+                WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => _scrollToBottom(),
+                );
 
                 return ListView.builder(
                   controller: _scrollCtrl,
@@ -454,24 +431,28 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     final isMe = data['sender'] == _currentUser.uid;
 
                     return Align(
-                      alignment:
-                          isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
                       child: Container(
                         margin: const EdgeInsets.symmetric(vertical: 4),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         constraints: BoxConstraints(
-                            maxWidth: MediaQuery.of(context).size.width * 0.75),
+                          maxWidth: MediaQuery.of(context).size.width * 0.75,
+                        ),
                         decoration: BoxDecoration(
-                          // Use theme colors for bubbles
-                          color: isMe ? primaryColor : surfaceVariantColor,
+                          // Sent messages should be blue[500] with white text
+                          color: isMe ? Colors.blue[500] : surfaceVariantColor,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           data['text'] ?? '',
                           style: TextStyle(
-                            // Use theme colors for text
-                            color: isMe ? onPrimaryColor : onSurfaceColor,
+                            // Sent message text white, received use onSurface
+                            color: isMe ? Colors.white : onSurfaceColor,
                             fontSize: 15,
                           ),
                         ),
@@ -484,8 +465,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           ),
           // --- Input Bar ---
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
-                .copyWith(bottom: MediaQuery.of(context).padding.bottom + 8),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ).copyWith(bottom: MediaQuery.of(context).padding.bottom + 8),
             // Use theme surface color (white)
             color: Theme.of(context).colorScheme.surface,
             child: Row(
@@ -505,20 +488,22 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       // Use theme color (light grey)
                       fillColor: surfaceVariantColor.withOpacity(0.7),
                       border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none),
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 CircleAvatar(
-                  // Use theme color (blue)
-                  backgroundColor: primaryColor,
+                  // Use explicit blue[500] so send button matches sent messages
+                  backgroundColor: Colors.blue[500],
                   child: IconButton(
-                    // Use theme color (white)
-                    icon: Icon(Icons.send, color: onPrimaryColor),
+                    icon: const Icon(Icons.send, color: Colors.white),
                     onPressed: _sendMessage,
                   ),
                 ),

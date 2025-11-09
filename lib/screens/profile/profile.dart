@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:new_app/services/auth_service.dart';
+import 'package:new_app/screens/welcome/welcome.dart';
 import 'package:new_app/shared/bottom_bar.dart';
 import 'package:new_app/shared/styled_button.dart';
 import 'package:new_app/shared/styled_text.dart';
@@ -19,10 +20,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Switch states
   bool emailUpdates = false;
   bool notificationReminders = false;
+  // Local display name (prefer Firestore value if present)
+  String? displayName;
 
   @override
   void initState() {
     super.initState();
+    displayName = widget.user.displayName;
     _loadPreferences();
   }
 
@@ -37,6 +41,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         emailUpdates = data['emailUpdates'] ?? false;
         notificationReminders = data['notificationReminders'] ?? false;
+        // Prefer Firestore displayName if available
+        displayName = (data['displayName'] as String?) ?? displayName;
       });
     }
   }
@@ -93,7 +99,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               radius: 60,
               backgroundColor: Colors.blue[400],
               child: Text(
-                getInitials(widget.user.displayName ?? widget.user.email),
+                getInitials(
+                  displayName ?? widget.user.displayName ?? widget.user.email,
+                ),
                 style: const TextStyle(
                   fontSize: 36,
                   color: Colors.white,
@@ -105,66 +113,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             // Username
             Text(
-              widget.user.displayName ?? 'No Username',
+              displayName ?? widget.user.displayName ?? 'Hey, there!',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
 
             // Email row (underlined)
-            buildRow(Row(
-              children: [
-                const Icon(Icons.email, color: Colors.blue),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(widget.user.email ?? 'No email',
-                      style: const TextStyle(fontSize: 16)),
-                ),
-              ],
-            )),
+            buildRow(
+              Row(
+                children: [
+                  const Icon(Icons.email, color: Colors.blue),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      widget.user.email ?? 'No email',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
 
             // Date joined (underlined)
-            buildRow(Row(
-              children: [
-                const Icon(Icons.calendar_today, color: Colors.blue),
-                const SizedBox(width: 10),
-                Text('Joined on $dateJoined', style: const TextStyle(fontSize: 16)),
-              ],
-            )),
+            buildRow(
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today, color: Colors.blue),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Joined on $dateJoined',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
 
             // Email updates switch (underlined)
-            buildRow(Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Email Updates', style: TextStyle(fontSize: 16)),
-                Switch(
-                  value: emailUpdates,
-                  onChanged: (val) => _updatePreference('emailUpdates', val),
-                  activeColor: Colors.blue,
-                ),
-              ],
-            )),
+            buildRow(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Email Updates', style: TextStyle(fontSize: 16)),
+                  Switch(
+                    value: emailUpdates,
+                    onChanged: (val) => _updatePreference('emailUpdates', val),
+                    activeThumbColor: Colors.blue,
+                  ),
+                ],
+              ),
+            ),
 
             // Notification reminders switch (underlined)
-            buildRow(Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Notification Reminders', style: TextStyle(fontSize: 16)),
-                Switch(
-                  value: notificationReminders,
-                  onChanged: (val) => _updatePreference('notificationReminders', val),
-                  activeColor: Colors.blue,
-                ),
-              ],
-            )),
+            buildRow(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Notification Reminders',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  Switch(
+                    value: notificationReminders,
+                    onChanged: (val) =>
+                        _updatePreference('notificationReminders', val),
+                    activeThumbColor: Colors.blue,
+                  ),
+                ],
+              ),
+            ),
 
             const SizedBox(height: 30),
 
             // Log out button
             StyledButton(
-              onPressed: () {
-                AuthService.signOut();
+              onPressed: () async {
+                // await sign out to ensure auth state changes
+                await AuthService.signOut();
+
+                // After sign out, clear navigation stack and go to WelcomeScreen
+                if (!mounted) return;
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                  (route) => false,
+                );
               },
               child: const StyledButtonText('Log out'),
             ),
