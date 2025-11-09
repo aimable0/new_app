@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:new_app/providers/user_books_provider.dart';
 import 'package:new_app/screens/profile/book_card.dart';
 import 'package:new_app/screens/profile/post_book.dart';
+import 'package:new_app/services/firestore_service.dart';
 import 'package:new_app/shared/bottom_bar.dart';
 import 'package:new_app/shared/styled_text.dart';
 import 'package:new_app/theme.dart';
@@ -25,7 +26,11 @@ class _MyListingsState extends ConsumerState<MyListings> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.add, weight: 40, color: Colors.blue[500],), // the icon
+            icon: Icon(
+              Icons.add,
+              weight: 40,
+              color: Colors.blue[500],
+            ), // the icon
             iconSize: 32,
             tooltip: 'Add a book', // optional tooltip
             onPressed: () {
@@ -53,7 +58,30 @@ class _MyListingsState extends ConsumerState<MyListings> {
                   return ListView.builder(
                     itemCount: userBooks.length,
                     itemBuilder: (context, index) {
-                      return BookCard(userBooks[index]);
+                      return Dismissible(
+                        key: ValueKey(userBooks[index].id),
+                        onDismissed: (direction) async {
+                          final bookId = userBooks[index].id;
+
+                          try {
+                            // Delete the book from Firestore
+                            await FirestoreService.deleteBook(bookId);
+
+                            // message for feedback
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Book deleted')),
+                            );
+                          } catch (e) {
+                            // Error message if something goes wrong
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to delete book: $e'),
+                              ),
+                            );
+                          }
+                        },
+                        child: BookCard(userBooks[index]),
+                      );
                     },
                   );
                 },
@@ -64,7 +92,7 @@ class _MyListingsState extends ConsumerState<MyListings> {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomBar(currentIndex: 0),
+      bottomNavigationBar: const BottomBar(currentIndex: 1),
     );
   }
 }

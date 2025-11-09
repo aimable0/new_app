@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:new_app/screens/profile/browse.dart';
 import 'package:new_app/screens/profile/chat.dart';
 import 'package:new_app/screens/profile/my_listings.dart';
+import 'package:new_app/screens/profile/profile.dart';
 import 'package:new_app/screens/profile/settings.dart';
 import 'package:new_app/theme.dart';
 
@@ -26,7 +28,7 @@ class BottomBar extends StatelessWidget {
         page = const Chat();
         break;
       case 3:
-        page = const Settings();
+        page =  ProfileScreen(user: FirebaseAuth.instance.currentUser!);
         break;
       default:
         page = const Browse();
@@ -42,11 +44,12 @@ class BottomBar extends StatelessWidget {
       {'icon': Icons.feed, 'label': 'Browse'},
       {'icon': Icons.book, 'label': 'My Listings'},
       {'icon': Icons.chat_bubble, 'label': 'Chats'},
-      {'icon': Icons.settings, 'label': 'Profile'},
+      {'icon': Icons.settings, 'label': 'Settings'},
     ];
 
     return BottomAppBar(
-      height: 100,
+      padding: EdgeInsets.all(0),
+      height: 80,
       color: AppColors.primaryColor,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -61,13 +64,13 @@ class BottomBar extends StatelessWidget {
                 icon: Icon(
                   items[i]['icon'] as IconData,
                   color: color,
-                  size: 35,
+                  size: 25,
                 ),
               ),
               Text(
                 items[i]['label'] as String,
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13,
                   fontWeight: FontWeight.bold,
                   color: color,
                 ),

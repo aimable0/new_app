@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:new_app/models/app_user.dart';
 import 'package:new_app/services/auth_service.dart';
 import 'package:new_app/services/firestore_service.dart';
@@ -32,14 +33,17 @@ class _SignUpFormState extends State<SignUpForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // intro text
-            const Center(child: StyledBodyText('Sign up for a new account.')),
+            const Center(child: StyledBodyText("Let's get started!")),
             const SizedBox(height: 16.0),
 
             // username
             TextFormField(
+              style: GoogleFonts.poppins(),
               controller: _displayName,
-              decoration: const InputDecoration(
-                labelText: 'What should we call you?',
+              decoration: InputDecoration(
+                labelText: 'Full name',
+                labelStyle: GoogleFonts.poppins(),
+                helperStyle: GoogleFonts.poppins(),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -54,7 +58,11 @@ class _SignUpFormState extends State<SignUpForm> {
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: GoogleFonts.poppins(),
+                helperStyle: GoogleFonts.poppins(),
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
@@ -67,7 +75,11 @@ class _SignUpFormState extends State<SignUpForm> {
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: GoogleFonts.poppins(),
+                helperStyle: GoogleFonts.poppins(),
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please make a password';
@@ -83,7 +95,11 @@ class _SignUpFormState extends State<SignUpForm> {
             TextFormField(
               controller: _passwordController2,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Re-Enter Password'),
+              decoration: InputDecoration(
+                labelText: 'Re-Enter Password',
+                labelStyle: GoogleFonts.poppins(),
+                helperStyle: GoogleFonts.poppins(),
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please make a password';

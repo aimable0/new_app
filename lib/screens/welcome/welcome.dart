@@ -28,7 +28,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              StyledHeading('Welcome.'),
+              const SizedBox(height: 30,),
+              StyledHeading('BookSwap'),
+              const SizedBox(height: 20,),
+              StyledBodyText2('  Swap Your Books\nWith Other Students'),
+              const SizedBox(height: 25,),
 
               // sign up screen
               if (isSignUpForm)

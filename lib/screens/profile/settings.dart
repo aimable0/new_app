@@ -21,7 +21,7 @@ class _SettingsState extends State<Settings> {
         padding: const EdgeInsets.all(16),
         child: Center(child: Text('Screen under construction')),
       ),
-      bottomNavigationBar: const BottomBar(currentIndex: 0),
+      bottomNavigationBar: const BottomBar(currentIndex: 3),
     );
   }
 }

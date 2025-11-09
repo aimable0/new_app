@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:new_app/services/auth_service.dart';
 import 'package:new_app/shared/styled_button.dart';
 import 'package:new_app/shared/styled_text.dart';
@@ -35,7 +36,11 @@ class _SignInFormState extends State<SignInForm> {
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: GoogleFonts.poppins(),
+                helperStyle: GoogleFonts.poppins(),
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your email';
@@ -49,7 +54,11 @@ class _SignInFormState extends State<SignInForm> {
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: GoogleFonts.poppins(),
+                helperStyle: GoogleFonts.poppins(),
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';

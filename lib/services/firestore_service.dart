@@ -43,12 +43,8 @@ class FirestoreService {
   /// Posts a new book to Firestore.
   /// We let Firestore generate the document ID.
   static Future<DocumentReference<Book>> postBook(Book book) async {
-    // We use .add() here because Firestore can create the ID for us.
+    // .add() is being used here because Firestore can create the ID for us.
     // We'll have to update our book object with the new ID,
-    // or just pass in a book *without* an ID.
-    //
-    // A simpler way for 'postBook' is to pass the data, not a full object.
-    // But to follow your pattern:
     return refBooks.add(book);
   }
 
@@ -63,7 +59,7 @@ class FirestoreService {
   }
 
   /// Gets a real-time stream of *all available* books.
-  /// This is for your "Browse Listings" feed.
+  /// For  "Browse Listings" feed.
   static Stream<QuerySnapshot<Book>> getAvailableBooksStream(String currentUserId) {
     return refBooks
         .where('status', isEqualTo: BookStatus.available.name)
@@ -72,8 +68,8 @@ class FirestoreService {
         .snapshots(); // .snapshots() gives us the real-time stream
   }
 
-  /// Gets a real-time stream of *only* the current user's books.
-  /// This is for your "My Listings" screen.
+  /// Gets a real-time stream of the current user's books.
+  /// For  "My Listings" screen.
   static Stream<QuerySnapshot<Book>> getMyBooksStream(String userId) {
     return refBooks
         .where('ownerId', isEqualTo: userId)

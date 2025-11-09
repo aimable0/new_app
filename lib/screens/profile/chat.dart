@@ -21,7 +21,7 @@ class _ChatState extends State<Chat> {
         padding: const EdgeInsets.all(16),
         child: Center(child: Text('Screen under construction')),
         ),
-      bottomNavigationBar: const BottomBar(currentIndex: 0),
+      bottomNavigationBar: const BottomBar(currentIndex: 2),
     );
   }
 }

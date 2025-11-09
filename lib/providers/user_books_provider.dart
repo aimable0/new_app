@@ -10,3 +10,5 @@ final userBooksProvider = StreamProvider<List<Book>>((ref) {
   return FirestoreService.getMyBooksStream(user.uid)
       .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
 });
+
+// delete book from database
