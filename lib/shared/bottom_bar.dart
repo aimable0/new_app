@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:new_app/screens/chat/chat_screen.dart';
 import 'package:new_app/screens/profile/browse.dart';
 import 'package:new_app/screens/profile/chat.dart';
 import 'package:new_app/screens/profile/my_listings.dart';
@@ -25,7 +26,7 @@ class BottomBar extends StatelessWidget {
         page = const MyListings();
         break;
       case 2:
-        page = const Chat();
+        page = const ChatsScreen();
         break;
       case 3:
         page =  ProfileScreen(user: FirebaseAuth.instance.currentUser!);
