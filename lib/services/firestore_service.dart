@@ -64,9 +64,10 @@ class FirestoreService {
 
   /// Gets a real-time stream of *all available* books.
   /// This is for your "Browse Listings" feed.
-  static Stream<QuerySnapshot<Book>> getAvailableBooksStream() {
+  static Stream<QuerySnapshot<Book>> getAvailableBooksStream(String currentUserId) {
     return refBooks
         .where('status', isEqualTo: BookStatus.available.name)
+        .where('ownerId', isNotEqualTo: currentUserId)
         .orderBy('postedAt', descending: true)
         .snapshots(); // .snapshots() gives us the real-time stream
   }

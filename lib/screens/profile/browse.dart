@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:new_app/shared/bottom_bar.dart';
 import 'package:new_app/shared/styled_text.dart';
 import 'package:new_app/theme.dart';
 
-class Browse extends StatefulWidget {
+class Browse extends ConsumerStatefulWidget {
   const Browse({super.key});
 
   @override
-  State<Browse> createState() => _BrowseState();
+  ConsumerState<Browse> createState() => _BrowseState();
 }
 
-class _BrowseState extends State<Browse> {
+class _BrowseState extends ConsumerState<Browse> {
 
 
   // logic for fetching books
