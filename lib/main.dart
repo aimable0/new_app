@@ -6,10 +6,8 @@ import 'package:new_app/providers/auth_provider.dart';
 import 'package:new_app/screens/profile/browse.dart';
 import 'package:new_app/theme.dart';
 import 'firebase_options.dart';
-
 import 'screens/welcome/welcome.dart';
 import 'screens/welcome/verify.dart';
-import 'screens/profile/profile.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,31 +21,34 @@ void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
     return MaterialApp(
       title: 'BookSwap App',
       theme: primaryTheme,
-      home: Consumer(
-        builder: (context, ref, child) {
-          final authState = ref.watch(authProvider);
+      debugShowCheckedModeBanner: false,
+      home: authState.when(
+        data: (user) {
+          // No user -> go to welcome screen
+          if (user == null) return const WelcomeScreen();
 
-          return authState.when(
-            data: (user) {
-              if (user == null) return const WelcomeScreen();
+          // User exists but not verified
+          if (!user.emailVerified) return const VerifyScreen();
 
-              if (!user.emailVerified) return const VerifyScreen();
-
-              return Browse();
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) =>
-                Center(child: Text('Error loading auth status: $err')),
-          );
+          // Verified -> show main app
+          return const Browse();
         },
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (err, _) => Scaffold(
+          body: Center(child: Text('Error: $err')),
+        ),
       ),
     );
   }
