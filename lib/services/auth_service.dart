@@ -20,9 +20,8 @@ class AuthService {
         if (!docSnapshot.exists) {
           await userDoc.set({
             'email': user.email,
-            'displayName': '',
+            'displayName': user.displayName,
             'joinedAt': FieldValue.serverTimestamp(),
-            // add any other fields here
           });
         }
 
